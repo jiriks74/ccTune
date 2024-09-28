@@ -2,6 +2,9 @@ local NextcloudPaser = {}
 local downloadRequest =
 "download?path=%2F&files=" -- What needs to be appended to a Nextcloud URL in order to downlaod a file
 
+---Encode a string into HTML
+---@param str string
+---@return string str HTML encoded string
 local function urlEncode(str)
   -- Convert the input string into its percent-encoded equivalent
   if str then
