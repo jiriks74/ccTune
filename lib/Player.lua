@@ -34,13 +34,13 @@ local function playChunk(chunk)
   return returnValue
 end
 
---- Play audio from a given URI
---- @param uri string
+--- Play audio from a given URL
+--- @param url string
 --- @throws If the audio cannot be retrieved
-function Player.play(uri)
+function Player.play(url)
   if speakers == nil then error("Couldn't find any speakers!") end
 
-  local response = http.get(uri, nil, true)
+  local response = http.get(url, nil, true)
   if response then
     local chunk = response.read(chunkSize)
 
@@ -55,7 +55,7 @@ function Player.play(uri)
     end
 
   else
-    error("Couldn't get " .. uri)
+    error("Couldn't get " .. url)
   end
 end
 
