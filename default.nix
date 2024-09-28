@@ -5,7 +5,7 @@ pkgs.mkShell {
   packages = with pkgs; [
     # Choose the build tools that you need
     ccemux
-    lua
+    lua54Packages.luafilesystem
   ];
 }
 
