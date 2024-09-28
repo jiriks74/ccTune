@@ -20,6 +20,18 @@ local function shuffleTable(t)
     return t
 end
 
+--Prints out help information
+local function printHelp()
+  print("Usage: play <playlist.cctpl> [options]")
+  print("Options:")
+  print("  -s, --shuffle       Shuffle the playlist before playing.")
+  print("Description:")
+  print("  The play command takes a .cctpl file as an argument, which is a ccTunes playlist.")
+  print("  Use the -s or --shuffle option to play the playlist in a random order.")
+  print("Example:")
+  print("  play my_playlist.cctpl -s")
+end
+
 ---@return string playlist Path to a cctpl playlist
 ---@return boolean shuffle Whether to shuffle the playlist
 local function parseArgs()
@@ -30,6 +42,9 @@ local function parseArgs()
   for _, arg in ipairs(arg) do
     if arg == "-s" then
       shuffle = true
+    elseif arg == "-h" or arg = "--help" then
+      printHelp()
+      return "-1", false
     elseif arg:match("%.cctpl$") then
       filename = arg
     end
@@ -79,6 +94,7 @@ function Main()
   local filename, shuffle = parseArgs()
 
   local type, baseUrl, files = parsePlaylist(filename)
+  if type == "-1" then return end
 
   if shuffle then shuffleTable(files) end
 
