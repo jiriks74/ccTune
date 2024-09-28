@@ -1,5 +1,10 @@
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
+
+---
+
 # ccTune
-A simple ComputerCraft music player for your playlists.
+
+A simple, internet enabled, ComputerCraft music player.
 
 Inspired by [cc-music-player](https://github.com/Metalloriff/cc-music-player).
 
