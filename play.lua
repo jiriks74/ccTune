@@ -47,12 +47,14 @@ local function parseArgs()
       return "-1", false
     elseif arg:match("%.cctpl$") then
       filename = arg
+    else
+      error("No playlist file was provided!")
     end
   end
 
   -- Check if a valid filename was provided
   if not filename then
-    error("Error: No valid .cctpl playlist file provided.")
+    error("Error: No valid .cctpl file was provided.")
   end
 
   return filename, shuffle
@@ -92,6 +94,7 @@ end
 
 function Main()
   local filename, shuffle = parseArgs()
+  if filename == "-1" then return end
 
   local type, baseUrl, files = parsePlaylist(filename)
   if type == "-1" then return end
