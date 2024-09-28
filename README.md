@@ -1,15 +1,15 @@
 # ccTune
 A simple ComputerCraft music player for your playlists.
 
-Inspired by [cc-music-player](https://github.com/Metalloriff/cc-music-player)
+Inspired by [cc-music-player](https://github.com/Metalloriff/cc-music-player).
 
 ## Features
 
-- **Playlist Generator**: Easily create playlists tailored to your musical taste! 🎵
-- **Online Playback**: Say goodbye to file size limits! Stream your music directly from the cloud! ☁️
-- **Simple Installation**: Get up and running in no time! 🛠️
-- **Modular Design**: Add support for more file hosts effortlessly! 🔌
-- **Custom Playlist Format**: Enjoy the simplicity of the `.cctpl` format for your playlists! 📂
+- 🎵 **Playlist Generator**: Easily create playlists tailored to your musical taste!
+- ☁️ **Online Playback**: Say goodbye to file size limits! Stream your music directly from the cloud!
+- 🔌 **Simple Installation**: Get up and running in no time!
+- 🛠️ **Modular Design**: Add support for more file hosts effortlessly!
+- 📂 **Custom Playlist Format**: Enjoy the simplicity of the `.cctpl` format for your playlists!
 
 ## Instalation
 

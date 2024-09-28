@@ -1,3 +1,6 @@
+# ccTune playlists
+*.cctpl
+
 # Nix
 .direnv/
 
