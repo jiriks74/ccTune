@@ -1,4 +1,4 @@
-local NextcloudPaser = {}
+local NextcloudGenerator = {}
 local downloadRequest =
 "download?path=%2F&files=" -- What needs to be appended to a Nextcloud URL in order to downlaod a file
 
@@ -20,7 +20,7 @@ end
 --- @param fileName string The file to be retrieved
 --- @return string url The direct download link
 --- @throws If the generated download link cannot be requested
-function NextcloudPaser.getUrl(baseUrl, fileName)
+function NextcloudGenerator.getUrl(baseUrl, fileName)
   assert(baseUrl ~= nil, "baseUrl cannot be nil!")
   assert(fileName ~= nil, "fileName cannot be nil!")
 
@@ -39,4 +39,4 @@ function NextcloudPaser.getUrl(baseUrl, fileName)
   return url
 end
 
-return NextcloudPaser
+return NextcloudGenerator
