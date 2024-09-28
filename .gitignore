@@ -1,3 +1,6 @@
+# Nix
+.direnv/
+
 # Compiled Lua sources
 luac.out
 
