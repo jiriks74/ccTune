@@ -42,7 +42,7 @@ local function parseArgs()
   for _, arg in ipairs(arg) do
     if arg == "-s" then
       shuffle = true
-    elseif arg == "-h" or arg = "--help" then
+    elseif arg == "-h" or arg == "--help" then
       printHelp()
       return "-1", false
     elseif arg:match("%.cctpl$") then
