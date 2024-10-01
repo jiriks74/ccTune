@@ -1,5 +1,5 @@
 local player = require("lib.Player")
-local basalt = require("lib.basalt.Basalt")
+local basalt = require("lib.basalt")
 local playlist
 
 local currentSongUrl
