@@ -47,6 +47,8 @@ install
 lua playlistGenerator.lua my_playlist.cctpl --type Nextcloud --baseUrl https://nextcloud.example.com/s/myMusicFolder --directory /path/to/DFPWM/directory
 ```
 
+#### Manual playlists
+
 ### Playing your songs
 
 1. Open your computer
