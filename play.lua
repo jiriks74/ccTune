@@ -1,4 +1,17 @@
 local player = require("lib.Player")
+local basalt = require("lib.basalt.Basalt")
+local playlist
+
+local currentSongUrl
+local playThread
+local songFinished = false
+
+local exit = false
+
+local type, baseUrl, files, shuffle
+
+local selectSong
+local playSong
 
 ---@alias playlistTypes
 ---| "Nextcloud"
@@ -13,11 +26,11 @@ end
 ---@param t table
 ---@return table t
 local function shuffleTable(t)
-    for i = #t, 2, -1 do
-        local j = math.random(i)
-        t[i], t[j] = t[j], t[i]  -- Swap
-    end
-    return t
+  for i = #t, 2, -1 do
+    local j = math.random(i)
+    t[i], t[j] = t[j], t[i] -- Swap
+  end
+  return t
 end
 
 --Prints out help information
@@ -36,12 +49,12 @@ end
 ---@return boolean shuffle Whether to shuffle the playlist
 local function parseArgs()
   local filename = nil
-  local shuffle = false
+  local shuffleArg = false
 
   -- Iterate through the provided arguments
   for _, arg in ipairs(arg) do
     if arg == "-s" then
-      shuffle = true
+      shuffleArg = true
     elseif arg == "-h" or arg == "--help" then
       printHelp()
       return "-1", false
@@ -57,7 +70,7 @@ local function parseArgs()
     error("Error: No valid .cctpl file was provided.")
   end
 
-  return filename, shuffle
+  return filename, shuffleArg
 end
 
 ---Parses a cctpl playlist
@@ -70,43 +83,118 @@ local function parsePlaylist(file)
     error("Unknown file extension `" .. file:match("^.+(%..+)$") .. "`!\nExpected `.cctpl`")
   end
 
-  local playlist = fs.open(file, "r")
-  if playlist == nil then error("Couldn't open file `" .. file .. "`!") end
+  local playlistFile = fs.open(file, "r")
+  if playlistFile == nil then error("Couldn't open file `" .. file .. "`!") end
 
-  local playlistType = playlist.readLine():match("^@type%s+(%S+)")
-  local baseUrl = playlist.readLine():match("^@baseUrl%s+(.+)")
+  local playlistType = playlistFile.readLine():match("^@type%s+(%S+)")
+  local playlistBaseUrl = playlistFile.readLine():match("^@baseUrl%s+(.+)")
 
   if playlistType == "" or playlistType == nil then error("Wrong playlist format!") end
   if not isPlaylistTypeSupported(playlistType) then error("Playlist type `" .. playlistType .. "` isn't supported!") end
 
-  local files = {}
+  local parsed_files = {}
 
   while true do
-    local line = playlist.readLine()
+    local line = playlistFile.readLine()
     if not line then break end
     if line:match("%S+") then
-      table.insert(files, line)
+      table.insert(parsed_files, line)
     end
   end
 
-  return playlistType, baseUrl, files
+  return playlistType, playlistBaseUrl, parsed_files
+end
+
+local function refreshPlaylist()
+  playlist:clear()
+  if shuffle then shuffleTable(files) end
+  for _, song in ipairs(files) do
+    playlist:addItem(song:gsub("%.dfpwm$", ""))
+  end
+  playlist:setOffset(playlist:getItemIndex() - 2)
+end
+
+function playSong()
+  player.play(currentSongUrl)
+  songFinished = true
+end
+
+local function watchdog()
+  while true do
+    if playThread:getStatus() == "dead" and songFinished then
+      if playlist:getItemIndex() ~= playlist:getItemCount() then
+        playlist:selectItem(playlist:getItemIndex() + 1)
+        local item = playlist:getItem(playlist:getItemIndex())
+        songFinished = false
+        selectSong(item)
+      else
+        refreshPlaylist()
+      end
+    end
+    if exit then
+      playThread.stop()
+      return
+    end
+    sleep(1)
+  end
+end
+
+function selectSong(item)
+  playThread:stop()
+  songFinished = false
+  local linkBuilder = require("lib.linkBuilders." .. type)
+  currentSongUrl = linkBuilder.getUrl(baseUrl, item.text .. ".dfpwm")
+  playlist:setOffset(playlist:getItemIndex() - 2)
+  playThread:start(playSong)
+  -- player.play(url)
+  -- if playlist:getItemIndex() == playlist:getItemCount() then
+  --   refreshPlaylist()
+  -- end
 end
 
 function Main()
-  local filename, shuffle = parseArgs()
+  local filename
+  filename, shuffle = parseArgs()
   if filename == "-1" then return end
 
-  local type, baseUrl, files = parsePlaylist(filename)
+  type, baseUrl, files = parsePlaylist(filename)
   if type == "-1" then return end
 
-  if shuffle then shuffleTable(files) end
+  local mainFrame = basalt.createFrame()
 
-  local linkBuilder = require("lib.linkBuilders." .. type)
+  if not mainFrame then error("Error creating main frame!") end
 
-  for _, file in ipairs(files) do
-    local url = linkBuilder.getUrl(baseUrl, file)
-    player.play(url)
-  end
+  playlist = mainFrame:addList()
+  playlist:setSelectionColor(colors.green)
+  playlist:onSelect(function(_, _, item)
+    selectSong(item)
+  end)
+  local exitButton = mainFrame:addButton()
+  exitButton:setText("Quit")
+
+  local termW, termH = term.getSize()
+
+  playlist:setSize(termW, termH - (exitButton:getHeight() + 2))
+  exitButton:setPosition(termW / 2 - exitButton:getWidth() / 2, termH - exitButton:getHeight())
+
+  refreshPlaylist()
+  playlist:setOffset(playlist:getItemIndex() - 2)
+  local item = playlist:getItem(1)
+  playThread = mainFrame:addThread()
+  local watchThread = mainFrame:addThread()
+  selectSong(item)
+  watchThread:start(watchdog)
+
+  exitButton:onClick(function(self, event, button, _, _)
+    if (event == "mouse_click") and (button == 1) then
+      exit = true
+      while watchThread:getStatus() == "running" do
+      end
+      basalt.stopUpdate()
+    end
+  end)
+
+  basalt.autoUpdate()
 end
 
 Main()
