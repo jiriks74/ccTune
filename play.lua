@@ -1,5 +1,5 @@
 local player = require("lib.Player")
-local basalt = require("lib.basalt.Basalt")
+local basalt = require("lib.basalt")
 local playlist
 
 local currentSongUrl
@@ -135,7 +135,7 @@ local function watchdog()
       playThread.stop()
       return
     end
-    sleep(0.75)
+    sleep(1)
   end
 end
 
