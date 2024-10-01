@@ -1,5 +1,6 @@
 @version 2.0.1
 play.lua
 version.txt
+libFiles.txt
 lib/Player.lua
 lib/linkBuilders/Nextcloud.lua
