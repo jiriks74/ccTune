@@ -135,7 +135,7 @@ local function watchdog()
       playThread.stop()
       return
     end
-    sleep(1)
+    sleep(0.75)
   end
 end
 
