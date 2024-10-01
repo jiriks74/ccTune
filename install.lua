@@ -2,6 +2,7 @@
 local owner = "jiriks74"
 local repo = "ccTune"
 local baseUrl = "https://raw.githubusercontent.com/" .. owner .. "/" .. repo .. "/refs/heads/main/"
+local baseLibUrl = "https://raw.githubusercontent.com/Pyroxenium/Basalt/8dd8e63d21752f2fe621b04b9db0aeb155fedf0d/"
 -- ^Settings
 
 local installed = false
@@ -84,7 +85,7 @@ while true do
   local line = libResponse.readLine()
   if not line then break end
   if line:match("%S+") then
-    table.insert(files, line)
+    table.insert(libFiles, line)
   end
 end
 
@@ -133,15 +134,14 @@ for _, file in ipairs(files) do
   fp.close()
 end
 
-local baseLibUrl = "https://raw.githubusercontent.com/Pyroxenium/Basalt/8dd8e63d21752f2fe621b04b9db0aeb155fedf0d/"
 for _, file in ipairs(libFiles) do
   print("  Downloading `" .. file .. "`...")
 
   local fp = fs.open(file, "w")
   if fp == nil then error("Error creating file `" .. file .. "`!") end
 
-  local downloadResponse = http.get(baseUrl .. file)
-  if downloadResponse == nil then error("Error downloading " .. baseLibUrl .. file .. "!") end
+  local downloadResponse = http.get(baseLibUrl .. file:gsub("^lib/basalt/", ""))
+  if downloadResponse == nil then error("Error downloading " .. baseLibUrl .. file:gsub("^lib/basalt/", "") .. "!") end
 
   fp.write(downloadResponse.readAll())
   fp.close()
