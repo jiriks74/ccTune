@@ -1,6 +1,3 @@
 [submodule "lib/cc-tweaked"]
 	path = lib/cc-tweaked
 	url = https://github.com/jiriks74/CCTweaked-LSP
-[submodule "lib/basalt"]
-	path = lib/basalt
-	url = https://github.com/Pyroxenium/Basalt.git
