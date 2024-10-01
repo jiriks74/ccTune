@@ -67,9 +67,21 @@ else
 end
 
 local files = {}
+local libFiles = {}
 
 while true do
   local line = versionResponse.readLine()
+  if not line then break end
+  if line:match("%S+") then
+    table.insert(files, line)
+  end
+end
+
+local libResponse = http.get(baseUrl .. "libFiles.txt")
+if libResponse == nil then error("Error fetching lib info!") end
+
+while true do
+  local line = libResponse.readLine()
   if not line then break end
   if line:match("%S+") then
     table.insert(files, line)
@@ -83,13 +95,27 @@ if installed then
     print("  Deleting `" .. file .. "`...")
     fs.delete(file)
   end
+  for _, file in ipairs(libFiles) do
+    print("  Deleting `" .. file .. "`...")
+    fs.delete(file)
+  end
 end
 
 if not fs.isDir("lib") then
   print("Creating lib/ directory")
   fs.makeDir("lib")
-  print("Creating lib/linkBuilders directory")
-  fs.makeDir("lib/linkBuilders")
+  if not fs.isDir("lib/linkBuilders") then
+    print("Creating lib/linkBuilders directory")
+    fs.makeDir("lib/linkBuilders")
+  end
+  if not fs.isDir("lib/basalt") then
+    print("Creating lib/basalt directory")
+    fs.makeDir("lib/basalt")
+    if not fs.isDir("lib/basalt/Basalt") then
+      print("Creating lib/basalt/Basalt directory")
+      fs.makeDir("lib/basalt/Basalt")
+    end
+  end
 end
 
 print("Pulling files...")
@@ -102,6 +128,20 @@ for _, file in ipairs(files) do
 
   local downloadResponse = http.get(baseUrl .. file)
   if downloadResponse == nil then error("Error downloading " .. baseUrl .. file .. "!") end
+
+  fp.write(downloadResponse.readAll())
+  fp.close()
+end
+
+local baseLibUrl = "https://raw.githubusercontent.com/Pyroxenium/Basalt/8dd8e63d21752f2fe621b04b9db0aeb155fedf0d/"
+for _, file in ipairs(libFiles) do
+  print("  Downloading `" .. file .. "`...")
+
+  local fp = fs.open(file, "w")
+  if fp == nil then error("Error creating file `" .. file .. "`!") end
+
+  local downloadResponse = http.get(baseUrl .. file)
+  if downloadResponse == nil then error("Error downloading " .. baseLibUrl .. file .. "!") end
 
   fp.write(downloadResponse.readAll())
   fp.close()
