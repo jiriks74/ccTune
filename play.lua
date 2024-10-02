@@ -1,6 +1,13 @@
 local player = require("lib.Player")
 local basalt = require("lib.basalt")
+local mainFrame
 local playlist
+local exitButton
+local upButton
+local downButton
+local playlistColor
+
+local darkMode = false
 
 local currentSongUrl
 local playThread
@@ -38,6 +45,7 @@ local function printHelp()
   print("Usage: play <playlist.cctpl> [options]")
   print("Options:")
   print("  -s, --shuffle       Shuffle the playlist before playing.")
+  print("  -d, --dark-mode     Turn on dark mode.")
   print("Description:")
   print("  The play command takes a .cctpl file as an argument, which is a ccTunes playlist.")
   print("  Use the -s or --shuffle option to play the playlist in a random order.")
@@ -55,6 +63,8 @@ local function parseArgs()
   for _, arg in ipairs(arg) do
     if arg == "-s" then
       shuffleArg = true
+    elseif arg == "-d" or arg == "--dark-mode" then
+      darkMode = true
     elseif arg == "-h" or arg == "--help" then
       printHelp()
       return "-1", false
@@ -109,7 +119,7 @@ local function refreshPlaylist()
   playlist:clear()
   if shuffle then shuffleTable(files) end
   for _, song in ipairs(files) do
-    playlist:addItem(song:gsub("%.dfpwm$", ""))
+    playlist:addItem(song:gsub("%.dfpwm$", ""), playlistColor)
   end
   playlist:setOffset(playlist:getItemIndex() - 2)
 end
@@ -139,6 +149,25 @@ local function watchdog()
   end
 end
 
+local function setColors()
+  if darkMode then
+    playlistColor = colors.black
+    mainFrame:setBackground(colors.black)
+    playlist:setBackground(colors.black)
+    playlist:setForeground(colors.white)
+    playlist:setSelectionColor(colors.green)
+    exitButton:setBackground(colors.green)
+    exitButton:setForeground(colors.white)
+  else
+    playlistColor = colors.lightBlue
+    mainFrame:setBackground(colors.blue)
+    playlist:setBackground(colors.lightBlue)
+    playlist:setSelectionColor(colors.orange)
+    exitButton:setBackground(colors.orange)
+    exitButton:setForeground(colors.black)
+  end
+end
+
 function selectSong(item)
   playThread:stop()
   songFinished = false
@@ -160,22 +189,40 @@ function Main()
   type, baseUrl, files = parsePlaylist(filename)
   if type == "-1" then return end
 
-  local mainFrame = basalt.createFrame()
-
+  mainFrame = basalt.createFrame()
   if not mainFrame then error("Error creating main frame!") end
+  mainFrame:setBackground(colors.blue)
 
   playlist = mainFrame:addList()
-  playlist:setSelectionColor(colors.green)
+  -- playlist:setSelectionColor(colors.green)
+  playlist:setBackground(colors.lightBlue)
+  playlist:setSelectionColor(colors.orange)
   playlist:onSelect(function(_, _, item)
     selectSong(item)
   end)
-  local exitButton = mainFrame:addButton()
+  exitButton = mainFrame:addButton()
   exitButton:setText("Quit")
+  exitButton:setBackground(colors.orange)
+  exitButton:setForeground(colors.white)
+
+  upButton = mainFrame:addButton()
+  upButton:setWidth(5)
+  upButton:setText("^")
+
+  downButton = mainFrame:addButton()
+  downButton:setWidth(5)
+  downButton:setText("v")
 
   local termW, termH = term.getSize()
 
   playlist:setSize(termW, termH - (exitButton:getHeight() + 2))
-  exitButton:setPosition(termW / 2 - exitButton:getWidth() / 2, termH - exitButton:getHeight())
+  -- exitButton:setPosition(termW / 2 - exitButton:getWidth() / 2, termH - exitButton:getHeight())
+
+  exitButton:setPosition(termW - exitButton:getWidth() - 1, termH - exitButton:getHeight())
+  upButton:setPosition(2, termH - upButton:getHeight())
+  downButton:setPosition(upButton:getPosition() + upButton:getWidth() + 1, termH - downButton:getHeight())
+
+  setColors()
 
   refreshPlaylist()
   playlist:setOffset(playlist:getItemIndex() - 2)
@@ -185,12 +232,28 @@ function Main()
   selectSong(item)
   watchThread:start(watchdog)
 
-  exitButton:onClick(function(self, event, button, _, _)
+  exitButton:onClick(function(_, event, button, _, _)
     if (event == "mouse_click") and (button == 1) then
       exit = true
       while watchThread:getStatus() == "running" do
       end
       basalt.stopUpdate()
+    end
+  end)
+
+  upButton:onClick(function(_, event, button, _, _)
+    if (event == "mouse_click") and (button == 1) then
+      if playlist:getOffset() > -1 then
+        playlist:setOffset(playlist:getOffset() - playlist:getHeight() / 2)
+      end
+    end
+  end)
+
+  downButton:onClick(function(_, event, button, _, _)
+    if (event == "mouse_click") and (button == 1) then
+      if playlist:getOffset() < playlist:getItemCount() - playlist:getHeight() + 1 then
+        playlist:setOffset(playlist:getOffset() + playlist:getHeight() / 2)
+      end
     end
   end)
 
