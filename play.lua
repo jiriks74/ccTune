@@ -139,6 +139,9 @@ local function watchdog()
         selectSong(item)
       else
         refreshPlaylist()
+        local item = playlist:getItem(playlist:getItemIndex())
+        songFinished = false
+        selectSong(item)
       end
     end
     if exit then
