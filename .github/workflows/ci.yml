@@ -9,10 +9,11 @@ jobs:
       - name: Install Luarocks
         run: |
           sudo apt-get update
-          sudo apt-get install -y luarocks
+          sudo apt-get install -y luarocks lua5.3
+          sudo luarocks --lua-version=5.3 install luarocks
       - name: Install Stylua
         run: |
-          sudo luarocks install stylua
+          sudo luarocks --lua-version=5.3 install stylua
       - name: Run Stylua
         run: |
           stylua --config-path .stylua.toml . --exclude lib/cc-tweaked
@@ -24,10 +25,11 @@ jobs:
       - name: Install Luarocks
         run: |
           sudo apt-get update
-          sudo apt-get install -y luarocks
+          sudo apt-get install -y luarocks lua5.3
+          sudo luarocks --lua-version=5.3 install luarocks
       - name: Install Lua-Language-Server
         run: |
-          sudo luarocks install lua-language-server
+          sudo luarocks --lua-version=5.3 install lua-language-server
       - name: Run Lua-Language-Server
         continue-on-error: true
         run: |
