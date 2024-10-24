@@ -1,0 +1,13 @@
+# Stylua Configuration File
+
+# Indent settings
+indent_type = "Spaces"
+indent_width = 2
+
+# Line settings
+column_width = 80
+
+# Exclude files and directories
+exclude = {
+  "lib/cc-tweaked/**"
+}

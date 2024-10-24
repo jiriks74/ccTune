@@ -2,5 +2,6 @@
     "workspace.library": [
       "./lib/cc-tweaked/",
       "./lib/basalt/Basalt"
-    ]
+    ],
+    "diagnostics.libraryFiles": "Disable"
 }
