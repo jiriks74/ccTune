@@ -1,0 +1,47 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Luarocks
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y luarocks
+
+      - name: Install Stylua
+        run: |
+          sudo luarocks install stylua
+
+      - name: Run Stylua
+        run: |
+          stylua --config-path .stylua.toml . --exclude lib/cc-tweaked
+
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Luarocks
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y luarocks
+
+      - name: Install Lua-Language-Server
+        run: |
+          sudo luarocks install lua-language-server
+
+      - name: Run Lua-Language-Server
+        continue-on-error: true
+        run: |
+          lua-language-server --logpath . --check .
+
+      - name: Parse Lua-Language-Server Output
+        run: |
+          lua parse_lua_ls_output.lua ./check.json
