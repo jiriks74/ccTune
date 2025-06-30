@@ -1,6 +1,4 @@
 local NextcloudGenerator = {}
-local downloadRequest =
-"download?path=%2F&files=" -- What needs to be appended to a Nextcloud URL in order to downlaod a file
 
 ---Encode a string into HTML
 ---@param str string
@@ -30,7 +28,7 @@ function NextcloudGenerator.getUrl(baseUrl, fileName)
     url = baseUrl .. "/"
   else url = baseUrl end
 
-  url = url .. downloadRequest .. urlEncode(fileName)
+  url = url:gsub("/s/", "/public.php/dav/files/")  .. urlEncode(fileName)
 
   if not http.checkURL(url) then
     error(baseUrl .. "\nThe generated url cannot be requested!")
