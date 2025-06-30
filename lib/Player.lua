@@ -47,9 +47,8 @@ function Player.play(url)
     while chunk ~= nil do
       local buffer = decoder(chunk)
 
-      while not playChunk(buffer) do
-        os.pullEvent("speaker_audio_empty")
-      end
+      playChunk(buffer)
+      os.pullEvent("speaker_audio_empty")
 
       chunk = response.read(chunkSize)
     end

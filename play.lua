@@ -125,22 +125,22 @@ local function refreshPlaylist()
 end
 
 function playSong()
+  songFinished = false
   player.play(currentSongUrl)
   songFinished = true
+  sleep(1)
 end
 
 local function watchdog()
   while true do
-    if playThread:getStatus() == "dead" and songFinished then
-      if playlist:getItemIndex() ~= playlist:getItemCount() then
+    if songFinished then
+      if playlist:getItemIndex() < playlist:getItemCount() then
         playlist:selectItem(playlist:getItemIndex() + 1)
         local item = playlist:getItem(playlist:getItemIndex())
-        songFinished = false
         selectSong(item)
       else
         refreshPlaylist()
         local item = playlist:getItem(playlist:getItemIndex())
-        songFinished = false
         selectSong(item)
       end
     end
@@ -173,10 +173,10 @@ end
 
 function selectSong(item)
   playThread:stop()
-  songFinished = false
   local linkBuilder = require("lib.linkBuilders." .. type)
   currentSongUrl = linkBuilder.getUrl(baseUrl, item.text .. ".dfpwm")
   playlist:setOffset(playlist:getItemIndex() - 2)
+  songFinished = false
   playThread:start(playSong)
   -- player.play(url)
   -- if playlist:getItemIndex() == playlist:getItemCount() then
